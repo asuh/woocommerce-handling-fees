@@ -1,0 +1,140 @@
+/* WooCommerce Handling Fees - Admin Styles */
+
+/* Shipping classes list */
+#shipping-class-list {
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 4px;
+}
+
+#shipping-class-list label {
+  display: block;
+  margin-bottom: 8px;
+  color: #444;
+}
+
+/* Handling fee class settings */
+.handling-fee-class-row th {
+  padding-top: 20px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.handling-fee-class-row td {
+  padding-block: 0;
+}
+
+.handling-fee-class-settings {
+  background-color: #fff;
+  padding: 1rem;
+}
+
+/* Tier settings */
+.tier-settings {
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px dashed #eee;
+}
+
+/* Tooltip button styling */
+.tooltip-button {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  vertical-align: middle;
+  color: #787c82;
+  margin-left: 4px;
+}
+
+.tooltip-button:hover, 
+.tooltip-button:focus {
+  color: #2271b1;
+}
+
+.tooltip-button .dashicons {
+  font-size: 16px;
+  height: 16px;
+  width: 16px;
+  vertical-align: text-bottom;
+}
+
+/* Tooltip popover styling */
+.tooltip-popover {
+  max-width: 300px;
+  padding: 10px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  font-size: 13px;
+  color: #444;
+  z-index: 100;
+  position: absolute;
+  margin: 5px 0 0;
+}
+
+/* Fallback for browsers that don't support anchor positioning */
+@supports not (position-area: top right) {
+  .tooltip-popover {
+    inset-block: 50%;
+    margin-inline: auto;
+    position: fixed;
+  }
+
+  .tooltip-popover::backdrop {
+    -webkit-backdrop-filter: blur(0.035rem);
+    backdrop-filter: blur(0.35rem);
+    background: rgba(255,255,255,0.01);
+  }
+
+  .form-field {
+    position: relative;
+  }
+  
+  .tooltip-button:hover + .tooltip-popover,
+  .tooltip-button:focus + .tooltip-popover {
+    display: block;
+  }
+}
+
+/* Tier explanation styling */
+.tier-explanation {
+  background: #f8f8f8;
+  border-left: 4px solid #46b450;
+  padding: 10px;
+  margin-bottom: 15px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.tier-explanation .dashicons {
+  color: #46b450;
+  margin-right: 5px;
+}
+
+/* Form field styling */
+.handling-fee-class-settings .form-field {
+  margin-bottom: 12px;
+}
+
+.handling-fee-class-settings .form-field label {
+  display: inline-block;
+  margin-bottom: 5px;
+}
+
+.handling-fee-class-settings .fee-tier-field label {
+  display: inline-block;
+  width: 120px;
+  margin-right: 10px;
+}
+
+/* WooCommerce input styling */
+.handling-fee-class-settings .wc_input_price {
+  width: 100px;
+}
+
+.handling-fee-class-settings .wc-enhanced-select {
+  width: 150px;
+}
