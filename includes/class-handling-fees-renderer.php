@@ -89,7 +89,7 @@ class HandlingFeesRenderer {
    * @param string $instance_id Optional unique identifier to prevent ID collisions
    * @return string HTML output
    */
-  public function renderClassSettingsField(string $class_slug, string $instance_id = ''): string {
+  public function renderClassSettingsField(string $class_slug, string $instance_id = '', int $default_tier_count = 0): string {
     // Check cache first
     $cached_html = $this->cache->getCachedClassSettingsField($class_slug, $instance_id);
     if ($cached_html !== false) {

@@ -44,7 +44,7 @@ class HandlingFeesAdmin {
     // Admin hooks
     add_action('admin_enqueue_scripts', [$this, 'enqueueAdminScripts']);
     add_action('admin_init', [$this, 'registerSettings']);
-    
+
     // AJAX hooks
     add_action('wp_ajax_get_class_settings_field', [$this, 'getClassSettingsFieldCallback']);
     
@@ -174,6 +174,15 @@ class HandlingFeesAdmin {
    * @param array $field Field data
    */
   public function renderShippingClassesField($field): void {
+    static $has_rendered = false;
+
+    // Only render once per page load
+    if ($has_rendered) {
+      return;
+    }
+
+    $has_rendered = true;
+
     $options = $this->cache->getOptions();
     $selected_classes = $options['shipping_classes'] ?? [];
     $shipping_classes = $this->cache->getAllShippingClasses();
