@@ -19,7 +19,7 @@
 ## Requirements
 
 - **WordPress:** Version 6 or higher.
-- **WooCommerce:** Verion 9.7.1 or higher installed and activated.
+- **WooCommerce:** Version 9.7.1 or higher installed and activated.
 - **PHP:** Compatible with PHP 8.3 or higher.
 
 ## Installation
@@ -52,6 +52,24 @@
 - The admin interface provides dynamic feedback and settings using AJAX, making it easier to manage fee tiers for each shipping class.
 - The settings are stored in the WordPress options table under the option name `handling_fees_options`.
 
+## File Structure
+
+```text
+woocommerce-handling-fees/
+├── woocommerce-handling-fees.php        # Plugin bootstrap, metadata, constants, and activation hooks
+├── includes/
+│   ├── class-handling-fees-plugin.php   # Main plugin coordinator and WooCommerce hook registration
+│   ├── class-handling-fees-calculator.php # Shipping-rate handling fee calculation
+│   ├── class-handling-fees-admin.php    # Admin settings hooks, sanitization, AJAX endpoint
+│   ├── class-handling-fees-renderer.php # WooCommerce settings field rendering
+│   ├── class-handling-fees-cache.php    # Option, shipping-class, and runtime cache helpers
+│   └── class-wc-settings-handling.php   # WooCommerce settings tab integration
+├── admin-script.js                      # Dynamic admin settings behavior
+├── admin-styles.css                     # Admin settings styles
+├── README.md
+└── LICENSE
+```
+
 ## Developer Notes
 
 - **Singleton Pattern:**  
@@ -65,6 +83,16 @@
 
 ## Version History
 
+- **1.0.1**
+  - Fixed stale admin settings output by removing cached rendered field HTML.
+  - Added capability checks and shipping-class validation to the AJAX settings endpoint.
+  - Improved input handling by unslashing request data before sanitization.
+  - Improved cart item handling so variation product shipping classes are respected.
+  - Replaced invalid nested settings table markup with a stable marker row for dynamic admin fields.
+  - Removed forced admin console debug logging.
+  - Escaped dynamic admin JavaScript output for safer field regeneration.
+  - Added plugin license metadata and a `LICENSE` file.
+
 - **1.0.0**
   - Initial public release of the plugin.
   - Added dynamic, tiered handling fees per shipping class with configurable options.
@@ -73,7 +101,7 @@
 
 ## License
 
-This plugin is released under the [GPLv2 or later](LICENSE) license.
+This plugin is released under the [GPLv2 or later](LICENSE) license. The "or later" language means recipients may use the plugin under GPLv2 or a later GPL version, including GPLv3.
 
 ## Contributing
 

@@ -72,12 +72,13 @@ class HandlingFeesRenderer {
       </td>
     </tr>
   
-    <!-- Container for dynamically added class settings rows -->
-    <tbody id="handling-fee-settings">
-      <?php foreach ($selected_classes as $class_slug): ?>
-        <?php echo $this->renderClassSettingsField($class_slug); ?>
-      <?php endforeach; ?>
-    </tbody>
+    <?php foreach ($selected_classes as $class_slug): ?>
+      <?php echo $this->renderClassSettingsField($class_slug); ?>
+    <?php endforeach; ?>
+
+    <tr id="handling-fee-settings" class="handling-fee-settings-marker" aria-hidden="true">
+      <td colspan="2"></td>
+    </tr>
     <?php
     return ob_get_clean();
   }
@@ -89,13 +90,7 @@ class HandlingFeesRenderer {
    * @param string $instance_id Optional unique identifier to prevent ID collisions
    * @return string HTML output
    */
-  public function renderClassSettingsField(string $class_slug, string $instance_id = '', int $default_tier_count = 0): string {
-    // Check cache first
-    $cached_html = $this->cache->getCachedClassSettingsField($class_slug, $instance_id);
-    if ($cached_html !== false) {
-      return $cached_html;
-    }
-    
+  public function renderClassSettingsField(string $class_slug, string $instance_id = '', int $default_tier_count = 1): string {
     $options = $this->cache->getOptions();
     $class_settings = $options['class_settings'][$class_slug] ?? [];
     $apply_with_others = $class_settings['apply_with_others'] ?? false;
@@ -130,7 +125,6 @@ class HandlingFeesRenderer {
   
     ob_start();
     ?>
-    <!-- Class settings header row -->
     <tr valign="top" id="class-settings-<?php echo $unique_suffix; ?>" class="handling-fee-class-row">
       <th scope="row" class="titledesc">
         <label><?php echo $class_name; ?></label>
@@ -227,11 +221,6 @@ class HandlingFeesRenderer {
       </td>
     </tr>
     <?php
-    $html = ob_get_clean();
-    
-    // Cache the generated HTML
-    $this->cache->cacheClassSettingsField($class_slug, $html, $instance_id);
-    
-    return $html;
+    return ob_get_clean();
   }
 }

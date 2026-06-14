@@ -15,6 +15,10 @@
   color: #444;
 }
 
+.handling-fee-settings-marker {
+  display: none;
+}
+
 /* Handling fee class settings */
 .handling-fee-class-row th {
   padding-top: 20px;

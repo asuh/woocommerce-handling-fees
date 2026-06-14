@@ -31,10 +31,13 @@ class HandlingFeesAdmin {
    *
    * @param HandlingFeesCache $cache Cache manager
    */
-  public function __construct(HandlingFeesCache $cache) {
+  public function __construct(HandlingFeesCache $cache, bool $register_hooks = true) {
     $this->cache = $cache;
     $this->renderer = new HandlingFeesRenderer();
-    $this->registerHooks();
+
+    if ($register_hooks) {
+      $this->registerHooks();
+    }
   }
 
   /**
@@ -64,7 +67,7 @@ class HandlingFeesAdmin {
     }
 
     // Check if we're on the handling tab
-    if (isset($_GET['tab']) && $_GET['tab'] === 'handling') {
+    if (isset($_GET['tab']) && sanitize_key(wp_unslash($_GET['tab'])) === 'handling') {
       wp_enqueue_style(
         'handling-fees-admin-styles',
         HANDLING_FEES_PLUGIN_URL . '/admin-styles.css',
@@ -134,7 +137,7 @@ class HandlingFeesAdmin {
     if (isset($input['class_settings']) && is_array($input['class_settings'])) {
       foreach ($input['class_settings'] as $class_slug => $settings) {
         // Verify the class slug is valid
-        if (!in_array($class_slug, $sanitized['shipping_classes'])) {
+        if (!in_array($class_slug, $sanitized['shipping_classes'], true)) {
           continue;
         }
         
@@ -194,8 +197,14 @@ class HandlingFeesAdmin {
    * AJAX handler to generate the class settings field
    */
   public function getClassSettingsFieldCallback(): void {
+    if (!current_user_can('manage_woocommerce')) {
+      wp_send_json_error('Insufficient permissions');
+      return;
+    }
+
     // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'handling_fees_nonce')) {
+    $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
+    if (!$nonce || !wp_verify_nonce($nonce, 'handling_fees_nonce')) {
       wp_send_json_error('Security check failed');
       return;
     }
@@ -206,10 +215,19 @@ class HandlingFeesAdmin {
     }
     
     try {
-      $class_slug = sanitize_text_field($_POST['class_slug']);
-      $default_tier_count = isset($_POST['default_tier_count']) ? intval($_POST['default_tier_count']) : 1;      
+      $class_slug = sanitize_text_field(wp_unslash($_POST['class_slug']));
+      $default_tier_count = isset($_POST['default_tier_count']) ? absint(wp_unslash($_POST['default_tier_count'])) : 1;
+
+      $valid_class_slugs = array_map(function($class) {
+        return $class->slug;
+      }, $this->cache->getAllShippingClasses());
+
+      if (!in_array($class_slug, $valid_class_slugs, true)) {
+        wp_send_json_error('Invalid shipping class');
+        return;
+      }
+
       $html = $this->renderer->renderClassSettingsField($class_slug, '', $default_tier_count);
-      $this->cache->cacheClassSettingsField($class_slug, $html);
       wp_send_json_success($html);
     } catch (\Exception $e) {
       error_log('Handling Fees Config error: ' . $e->getMessage());

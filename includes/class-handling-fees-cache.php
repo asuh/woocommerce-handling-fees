@@ -17,32 +17,41 @@ if (!defined('ABSPATH')) {
  */
 class HandlingFeesCache {
   /**
+   * Cached plugin options for this request.
+   */
+  private $options = null;
+
+  /**
+   * Cached shipping classes for this request.
+   */
+  private $shipping_classes = null;
+
+  /**
    * Get plugin options with caching
    * 
    * @return array Plugin options
    */
   public function getOptions(): array {
-    static $options = null;
-    
-    if ($options === null) {
+    if ($this->options === null) {
       $cache_key = 'plugin_options';
       $cached_options = $this->getCachedValue($cache_key);
       
       if ($cached_options === false) {
-        $options = get_option(HANDLING_FEES_OPTION_NAME, []);
-        $this->setCachedValue($cache_key, $options, HOUR_IN_SECONDS);
+        $this->options = get_option(HANDLING_FEES_OPTION_NAME, []);
+        $this->setCachedValue($cache_key, $this->options, HOUR_IN_SECONDS);
       } else {
-        $options = $cached_options;
+        $this->options = $cached_options;
       }
     }
     
-    return $options;
+    return $this->options;
   }
 
   /**
    * Clear plugin options cache
    */
   public function clearPluginOptionsCache(): void {
+    $this->options = null;
     wp_cache_delete('plugin_options', HANDLING_FEES_CACHE_GROUP);
   }
 
@@ -52,60 +61,43 @@ class HandlingFeesCache {
    * @return array Array of shipping class terms
    */
   public function getAllShippingClasses(): array {
-    static $shipping_classes = null;
-    
-    if ($shipping_classes === null) {
+    if ($this->shipping_classes === null) {
       $cache_key = 'all_shipping_classes';
       $cached_classes = $this->getCachedValue($cache_key);
       
       if ($cached_classes === false) {
-        $shipping_classes = get_terms([
+        $this->shipping_classes = get_terms([
           'taxonomy' => 'product_shipping_class',
           'hide_empty' => false,
         ]);
         
-        if (!is_wp_error($shipping_classes)) {
-          $this->setCachedValue($cache_key, $shipping_classes, HOUR_IN_SECONDS);
+        if (!is_wp_error($this->shipping_classes)) {
+          $this->setCachedValue($cache_key, $this->shipping_classes, HOUR_IN_SECONDS);
         } else {
-          $shipping_classes = [];
+          $this->shipping_classes = [];
         }
       } else {
-        $shipping_classes = $cached_classes;
+        $this->shipping_classes = $cached_classes;
       }
     }
     
-    return $shipping_classes;
-  }
-
-  /**
-   * Cache class settings field HTML
-   *
-   * @param string $class_slug Shipping class slug
-   * @param string $html HTML content
-   * @param string $instance_id Optional instance ID
-   */
-  public function cacheClassSettingsField(string $class_slug, string $html, string $instance_id = ''): void {
-    $cache_key = 'field_html_' . $class_slug . ($instance_id ? '_' . $instance_id : '');
-    $this->setCachedValue($cache_key, $html, HOUR_IN_SECONDS);
-  }
-
-  /**
-   * Get cached class settings field HTML
-   *
-   * @param string $class_slug Shipping class slug
-   * @param string $instance_id Optional instance ID
-   * @return string|false HTML content or false if not cached
-   */
-  public function getCachedClassSettingsField(string $class_slug, string $instance_id = '') {
-    $cache_key = 'field_html_' . $class_slug . ($instance_id ? '_' . $instance_id : '');
-    return $this->getCachedValue($cache_key);
+    return $this->shipping_classes;
   }
 
   /**
    * Clear all handling fees caches
    */
   public function clearHandlingFeesCache(): void {
-    wp_cache_flush_group(HANDLING_FEES_CACHE_GROUP);
+    $this->options = null;
+    $this->shipping_classes = null;
+
+    if (function_exists('wp_cache_flush_group')) {
+      wp_cache_flush_group(HANDLING_FEES_CACHE_GROUP);
+      return;
+    }
+
+    wp_cache_delete('plugin_options', HANDLING_FEES_CACHE_GROUP);
+    wp_cache_delete('all_shipping_classes', HANDLING_FEES_CACHE_GROUP);
   }
 
   /**

@@ -69,11 +69,15 @@ class WC_Settings_Handling extends \WC_Settings_Page {
    * Save settings
    */
   public function save() {
+    if (!current_user_can('manage_woocommerce')) {
+      return;
+    }
+
     // We're handling the saving in the admin class
     // through the registered setting
-    if (isset($_POST[HANDLING_FEES_OPTION_NAME])) {
-      $options = $_POST[HANDLING_FEES_OPTION_NAME];
-      $admin = new HandlingFeesAdmin(new HandlingFeesCache());
+    $options = isset($_POST[HANDLING_FEES_OPTION_NAME]) ? wp_unslash($_POST[HANDLING_FEES_OPTION_NAME]) : [];
+    if (is_array($options)) {
+      $admin = new HandlingFeesAdmin(new HandlingFeesCache(), false);
       $sanitized = $admin->sanitizeHandlingFeesOptions($options);
       update_option(HANDLING_FEES_OPTION_NAME, $sanitized);
     }

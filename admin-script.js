@@ -14,9 +14,16 @@ document.addEventListener('DOMContentLoaded', () => {
       console.log(`[Handling Fees] ${message}`, data);
     }
   };
-  
-  // Enable debug mode
-  window.debugHandlingFees = true;
+
+  const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (char) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;',
+  }[char]));
+
+  const escapeAttribute = escapeHtml;
   
   // Function to load class settings via AJAX using Fetch API
   const loadClassSettings = async (classSlug) => {
@@ -37,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       if (data.success) {
         // Insert the HTML returned from the server
-        handlingFeeSettings.insertAdjacentHTML('beforeend', data.data);
+        handlingFeeSettings.insertAdjacentHTML('beforebegin', data.data);
 
         // Find the newly added panel and ensure tier fields are displayed
         const newPanel = findSettingsPanelByClassSlug(classSlug);
@@ -75,9 +82,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Function to find a settings panel by class slug
   const findSettingsPanelByClassSlug = (classSlug) => {
-    // Search for any panel that contains the class slug in its ID
-    const panels = document.querySelectorAll(`.handling-fee-class-row[id*="${classSlug}"]`);
-    return panels.length > 0 ? panels[0] : null;
+    return Array.from(document.querySelectorAll('.handling-fee-class-row'))
+      .find((panel) => panel.id.includes(classSlug)) || null;
   };
   
   // Handler for tier count changes
@@ -120,12 +126,15 @@ document.addEventListener('DOMContentLoaded', () => {
       className = classNameElement.textContent.trim();
     }
     const classNameLower = className.toLowerCase();
+    const safeClassNameLower = escapeHtml(classNameLower);
+    const safeClassSlug = escapeAttribute(classSlug);
     
     // Generate a unique suffix for field IDs
     const uniqueSuffix = settingsPanel.id.replace('class-settings-', '');
+    const safeUniqueSuffix = escapeAttribute(uniqueSuffix);
     
     // Build new tier fields HTML
-    let tierFieldsHtml = `<h3>Handling fees for ${classNameLower}</h3>`;
+    let tierFieldsHtml = `<h3>Handling fees for ${safeClassNameLower}</h3>`;
     
     // Add explanation if there are multiple tiers
     if (tierCount > 1) {
@@ -133,8 +142,8 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="tier-explanation">
           <span class="dashicons dashicons-lightbulb"></span>
           <strong>How handling fee tiers work:</strong> 
-          The first handling fee tier applies when there is 1 ${classNameLower}, 
-          The second handling fee tier applies when there are 2 ${classNameLower}, and so on. 
+          The first handling fee tier applies when there is 1 ${safeClassNameLower}, 
+          The second handling fee tier applies when there are 2 ${safeClassNameLower}, and so on. 
           For quantities higher than your highest tier, the highest tier fee will be used.
         </div>
       `;
@@ -142,23 +151,23 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Add tier fields
     for (let i = 1; i <= tierCount; i++) {
-      const tierId = `handling_fees_options-${uniqueSuffix}-rate-${i}`;
-      const tierValue = existingTiers[i] || '';
+      const tierId = `handling_fees_options-${safeUniqueSuffix}-rate-${i}`;
+      const tierValue = escapeAttribute(existingTiers[i] || '');
       
       tierFieldsHtml += `
-        <p class="form-field fee-tier-field fee-tier-field-${classSlug}">
+        <p class="form-field fee-tier-field fee-tier-field-${safeClassSlug}">
           <label for="${tierId}">
-            ${i} ${classNameLower}:
+            ${i} ${safeClassNameLower}:
           </label>
           
           <input 
             type="text" 
             id="${tierId}"
-            name="handling_fees_options[class_settings][${classSlug}][rates][${i}]" 
+            name="handling_fees_options[class_settings][${safeClassSlug}][rates][${i}]" 
             value="${tierValue}"
             class="wc_input_price" 
             placeholder="0.00"
-            aria-label="Handling fee for ${i} ${classNameLower}"
+            aria-label="Handling fee for ${i} ${safeClassNameLower}"
           />
         </p>
       `;

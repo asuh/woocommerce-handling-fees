@@ -2,10 +2,12 @@
 /**
  * Plugin Name: WooCommerce Handling Fees
  * Description: Add configurable handling fees based on shipping classes and product quantities in the cart.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Asuh
  * Author URI: https://asuh.com
  * Text Domain: wc-handling-fees
+ * License: GPLv2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * WC requires at least: 9.7.1
  * WC tested up to: 9.7.1
  */
@@ -24,7 +26,7 @@ add_action('before_woocommerce_init', function() {
 });
 
 // Define plugin constants
-define('HANDLING_FEES_VERSION', '1.0.0');
+define('HANDLING_FEES_VERSION', '1.0.1');
 define('HANDLING_FEES_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('HANDLING_FEES_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('HANDLING_FEES_OPTION_NAME', 'handling_fees_options');

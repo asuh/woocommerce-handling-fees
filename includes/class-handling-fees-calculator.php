@@ -107,14 +107,17 @@ class HandlingFeesCalculator {
     $class_item_counts = [];
     
     foreach ($cart_items as $item) {
-      $product = wc_get_product($item['product_id']);
+      $product = isset($item['data']) && is_a($item['data'], \WC_Product::class)
+        ? $item['data']
+        : wc_get_product($item['variation_id'] ?? $item['product_id']);
+
       if (!$product) {
         continue;
       }
       
       $class = $product->get_shipping_class();
-      if (in_array($class, $shipping_classes)) {
-        $class_item_counts[$class] = ($class_item_counts[$class] ?? 0) + $item['quantity'];
+      if (in_array($class, $shipping_classes, true)) {
+        $class_item_counts[$class] = ($class_item_counts[$class] ?? 0) + absint($item['quantity']);
       }
     }
     
